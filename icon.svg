@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="512" height="512" role="img" aria-label="Kirikouano">
+  <defs><clipPath id="c"><rect x="16" y="14" width="34" height="36"/></clipPath></defs>
+  <polygon points="4,4 46,4 60,18 60,60 18,60 4,46" fill="#f0b143"/>
+  <g clip-path="url(#c)" fill="none" stroke="#1a1203" stroke-width="8">
+    <path d="M20.5 14V50"/>
+    <path d="M24 32L48 9"/>
+    <path d="M24 32L48 55"/>
+  </g>
+</svg>
