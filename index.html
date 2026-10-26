@@ -539,6 +539,25 @@ footer {
 .gallery-sec a { display: block; border: 1px solid var(--line); overflow: hidden; }
 .gallery-sec img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
 .gallery-sec figcaption { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
+
+/* Vidéo de démonstration : cadre */
+.demo-sec .frame { position: relative; padding: 14px; background: var(--surface); border: 1px solid var(--line); box-shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7); }
+.demo-sec .frame::before, .demo-sec .frame::after { content: ""; position: absolute; width: 28px; height: 28px; border: 3px solid var(--accent); pointer-events: none; }
+.demo-sec .frame::before { top: -3px; left: -3px; border-right: 0; border-bottom: 0; }
+.demo-sec .frame::after { bottom: -3px; right: -3px; border-left: 0; border-top: 0; }
+.demo-sec .bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: -2px 0 12px; font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.demo-sec .bar b { display: inline-flex; align-items: center; gap: 8px; color: var(--fg); font-weight: 600; }
+.demo-sec .bar b::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(240, 177, 67, 0.22); }
+.demo-sec video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; border: 1px solid var(--line); }
+.demo-sec video:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+.demo-sec .parts { display: flex; gap: 8px; margin-top: 12px; }
+.demo-sec .part { padding: 8px 16px; font-family: var(--mono); font-size: 0.74rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); background: var(--surface-2); border: 1px solid var(--line); cursor: pointer; }
+.demo-sec .part:hover { color: var(--fg); }
+.demo-sec .part.on { color: var(--accent-fg); background: var(--accent); border-color: var(--accent); }
+.demo-sec .part:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+.demo-sec .cap { margin: 12px 2px 0; font-size: 0.92rem; color: var(--muted); }
+.demo-sec .wrap-v { max-width: 980px; margin-inline: auto; }
+@media (max-width: 560px) { .demo-sec .frame { padding: 8px; } .demo-sec .bar span { display: none; } }
 @media (max-width: 860px) { .gallery-sec .gal3 { grid-template-columns: minmax(0, 1fr); } }
 
 .lb { position: fixed; inset: 0; z-index: 100; display: none; flex-direction: column; background: #060a07; }
@@ -571,6 +590,7 @@ footer {
       <span>Kirikouano</span>
     </a>
     <nav aria-label="Sections">
+      <a href="#video">Vidéo</a>
       <a href="#fonctions">Fonctions</a>
       <a href="#installation">Installation</a>
       <a href="#catalogue">Catalogue</a>
@@ -616,6 +636,23 @@ footer {
             <div><dt>Raccourci en jeu</dt><dd>Alt gauche + M</dd></div>
           </dl>
         </section>
+      </div>
+    </section>
+
+    <section class="block demo-sec" id="video" aria-labelledby="vid-title">
+      <h2 id="vid-title">Le menu en action</h2>
+      <div class="wrap-v">
+        <div class="frame">
+          <div class="bar"><b>Démo en jeu</b><span>Farming Simulator 25 · 2 min</span></div>
+          <video id="demo-v" controls preload="metadata" playsinline poster="poster.jpg" src="demo1.mp4" aria-label="Démonstration de Kirikouano Menu HUD dans Farming Simulator 25">
+            Ton navigateur ne lit pas la vidéo : <a href="demo1.mp4">partie 1</a>, <a href="demo2.mp4">partie 2</a>.
+          </video>
+          <div class="parts" role="group" aria-label="Parties de la vidéo">
+            <button type="button" class="part on" data-i="0" aria-pressed="true">Partie 1</button>
+            <button type="button" class="part" data-i="1" aria-pressed="false">Partie 2</button>
+          </div>
+        </div>
+        <p class="cap">Champ libre, état du sol, cultures, clôtures : le menu directement en jeu, sans modifier ta carte.</p>
       </div>
     </section>
 
@@ -1313,5 +1350,20 @@ footer {
 })();
 </script>
 
+<script>
+(function () {
+  var v = document.getElementById("demo-v");
+  if (!v) return;
+  var files = ["demo1.mp4", "demo2.mp4"], cur = 0;
+  var btns = Array.prototype.slice.call(document.querySelectorAll(".demo-sec .part"));
+  function go(i, play) {
+    cur = i; v.src = files[i]; v.removeAttribute("poster");
+    btns.forEach(function (b, j) { b.classList.toggle("on", j === i); b.setAttribute("aria-pressed", j === i ? "true" : "false"); });
+    if (play) v.play().catch(function () {});
+  }
+  btns.forEach(function (b, j) { b.addEventListener("click", function () { go(j, true); }); });
+  v.addEventListener("ended", function () { if (cur < files.length - 1) go(cur + 1, true); });
+})();
+</script>
 </body>
 </html>
