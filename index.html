@@ -538,6 +538,16 @@ footer {
 .gallery-sec figure { margin: 0; }
 .gallery-sec a { display: block; border: 1px solid var(--line); overflow: hidden; }
 .gallery-sec img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
+
+/* Mentions légales */
+.legal details { border: 1px solid var(--line); background: var(--surface); margin-top: 10px; }
+.legal summary { cursor: pointer; padding: 14px 16px; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); }
+.legal summary:focus-visible { outline: 3px solid var(--fg); outline-offset: -3px; }
+.legal details[open] summary { border-bottom: 1px solid var(--line); }
+.legal details p { margin: 0; padding: 12px 16px 0; color: var(--muted); }
+.legal details p:last-child { padding-bottom: 16px; }
+.legal a { color: var(--accent-ink); }
+footer .flink { color: var(--muted); text-decoration: underline; }
 .gallery-sec figcaption { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
 
 /* Vidéo de démonstration : cadre */
@@ -843,11 +853,33 @@ footer {
         <p>Les navigateurs préviennent souvent pour les fichiers .zip peu téléchargés. Télécharge uniquement depuis cette page et compare l'empreinte du fichier avec celle publiée, quand elle est affichée.</p>
       </details>
     </section>
+
+    <section class="block legal" id="mentions" aria-labelledby="leg-title">
+      <h2 id="leg-title">Mentions légales et confidentialité</h2>
+      <details open>
+        <summary>Éditeur et hébergeur</summary>
+        <p>Site personnel et non commercial, édité par <strong>Kirikouano</strong> (pseudonyme). Contact : <span class="mail" data-u="kirikouano.mod" data-d="gmail.com">adresse e-mail (activez JavaScript pour l'afficher)</span>.</p>
+        <p>Hébergement : GitHub Pages, GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis. L'éditeur a communiqué son identité à l'hébergeur.</p>
+      </details>
+      <details>
+        <summary>Données personnelles et cookies</summary>
+        <p>Ce site ne crée aucun compte, n'utilise aucun cookie de suivi, de publicité ni de mesure d'audience, et ne conserve aucune donnée sur ses visiteurs.</p>
+        <p>Pour afficher le compteur de téléchargements, ta navigation interroge l'API publique de GitHub : GitHub reçoit alors ton adresse IP, selon sa <a href="https://docs.github.com/fr/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>. Le téléchargement du mod, la proposition d'un mod et les signalements passent aussi par GitHub et ton propre compte.</p>
+        <p>Le navigateur peut garder sur ton appareil de simples préférences (par exemple le son activé ou non). Elles ne sont jamais envoyées au site.</p>
+        <p>Tu peux demander l'accès, la correction ou la suppression de données te concernant (par exemple une proposition de mod publiée) en écrivant à l'adresse de contact ci-dessus.</p>
+      </details>
+      <details>
+        <summary>Propriété et marques</summary>
+        <p>Kirikouano Menu HUD est un mod communautaire gratuit, non affilié à GIANTS Software. « Farming Simulator » et les noms associés sont des marques de GIANTS Software GmbH. Les captures d'écran et vidéos montrent le jeu à des fins d'illustration du mod.</p>
+        <p>Les mods du catalogue restent sous la responsabilité de leurs auteurs. Pour signaler un contenu illicite, piraté ou dangereux, écris à l'adresse de contact : il sera retiré rapidement.</p>
+      </details>
+    </section>
   </main>
 
   <footer>
     <span>Kirikouano, mod communautaire pour Farming Simulator 25.</span>
     <span>Non affilié à GIANTS Software.</span>
+    <a class="flink" href="#mentions">Mentions légales et confidentialité</a>
   </footer>
 </div>
 
@@ -1363,6 +1395,14 @@ footer {
   }
   btns.forEach(function (b, j) { b.addEventListener("click", function () { go(j, true); }); });
   v.addEventListener("ended", function () { if (cur < files.length - 1) go(cur + 1, true); });
+})();
+</script>
+<script>
+(function () {
+  Array.prototype.forEach.call(document.querySelectorAll(".mail"), function (el) {
+    var a = document.createElement("a"), addr = el.getAttribute("data-u") + "@" + el.getAttribute("data-d");
+    a.href = "mailto:" + addr; a.textContent = addr; el.replaceChildren(a);
+  });
 })();
 </script>
 </body>
