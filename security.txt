@@ -1,0 +1,4 @@
+Contact: mailto:kirikouano.mod@gmail.com
+Expires: 2027-10-26T00:00:00.000Z
+Preferred-Languages: fr, en
+Canonical: https://kirikouano.github.io/kirikouano-menu-hud/security.txt
