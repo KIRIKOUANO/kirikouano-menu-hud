@@ -397,6 +397,11 @@ h3 {
 .drop span { display: block; margin-top: 6px; color: var(--muted); font-size: 0.95rem; }
 .drop:hover, .drop.over, .drop:focus-within { border-color: var(--accent); }
 .dropres { max-width: 820px; min-height: 1.4em; margin: 0 0 22px; font-weight: 600; overflow-wrap: anywhere; }
+.drop.good { border-style: solid; border-color: var(--ok); animation: dropGood 0.9s ease-out; }
+.drop.fail { border-style: solid; border-color: var(--err); animation: dropFail 0.6s ease-out; }
+@keyframes dropGood { 0% { box-shadow: 0 0 0 0 rgba(143, 209, 158, 0.55); } 100% { box-shadow: 0 0 0 26px rgba(143, 209, 158, 0); } }
+@keyframes dropFail { 0% { box-shadow: 0 0 0 0 rgba(255, 90, 70, 0.6); background: rgba(255, 90, 70, 0.18); transform: translateX(0); } 15% { transform: translateX(-9px); } 30% { transform: translateX(8px); } 45% { transform: translateX(-6px); } 60% { transform: translateX(4px); } 100% { box-shadow: 0 0 0 26px rgba(255, 90, 70, 0); transform: translateX(0); } }
+@media (prefers-reduced-motion: reduce) { .drop.good, .drop.fail { animation: none; } }
 .dropres.ok { color: var(--ok); }
 .dropres.bad { color: var(--err); }
 
@@ -1018,16 +1023,47 @@ footer .flink { color: var(--muted); text-decoration: underline; }
     (function () {
       var zone = document.getElementById("drop"), inp = document.getElementById("drop-file"), res = document.getElementById("dropres");
       function say(t, c) { res.textContent = t; res.className = "dropres" + (c ? " " + c : ""); }
+      function flash(cls) {
+        zone.classList.remove("good", "fail");
+        void zone.offsetWidth;
+        zone.classList.add(cls);
+      }
+      /* Sons générés par le navigateur : succès = arpège montant, échec = grave descendant et rugueux */
+      function tone(freq, start, dur, type, vol, slideTo) {
+        var o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime + start;
+        o.type = type;
+        o.frequency.setValueAtTime(freq, t);
+        if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t + dur);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(vol, t + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(audio.destination);
+        o.start(t); o.stop(t + dur + 0.05);
+      }
+      function sfx(ok) {
+        if (!soundOn || !audio) return;
+        try {
+          if (ok) {
+            [523.25, 659.25, 783.99, 1046.5].forEach(function (f, i) { tone(f, i * 0.09, 0.5, "sine", 0.16); });
+          } else {
+            tone(220, 0, 0.32, "sawtooth", 0.14, 110);
+            tone(165, 0.22, 0.5, "sawtooth", 0.14, 70);
+          }
+        } catch (e) {}
+      }
+      function verdict(ok) { flash(ok ? "good" : "fail"); sfx(ok); }
       async function check(f) {
         if (!f) return;
         if (!(window.crypto && crypto.subtle)) { say("Ton navigateur ne peut pas calculer l'empreinte ici. Utilise PowerShell.", "bad"); return; }
         if (f.size > 200 * 1024 * 1024) { say("Fichier trop gros pour une vérification ici.", "bad"); return; }
+        prepAudio();
+        zone.classList.remove("good", "fail");
         say("Calcul en cours...");
         try {
           var h = await crypto.subtle.digest("SHA-256", await f.arrayBuffer());
           var hex = Array.prototype.map.call(new Uint8Array(h), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
-          if (hex === CONFIG.sha256.toLowerCase()) say("✔ Fichier authentique : l'empreinte correspond.", "ok");
-          else say("✘ L'empreinte ne correspond pas. Ne l'installe pas. Empreinte calculée : " + hex, "bad");
+          if (hex === CONFIG.sha256.toLowerCase()) { say("✔ Fichier authentique : l'empreinte correspond.", "ok"); verdict(true); }
+          else { say("✘ L'empreinte ne correspond pas. Ne l'installe pas. Empreinte calculée : " + hex, "bad"); verdict(false); }
         } catch (e) { say("Impossible de lire ce fichier.", "bad"); }
       }
       inp.addEventListener("change", function () { check(inp.files[0]); inp.value = ""; });
