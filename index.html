@@ -539,6 +539,22 @@ footer {
 .gallery-sec a { display: block; border: 1px solid var(--line); overflow: hidden; }
 .gallery-sec img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; }
 
+
+/* Mise en page "fiche de mod" : vidéo compacte + aperçus */
+html, body { overflow-x: clip; }
+.top nav a { white-space: nowrap; }
+.top nav { gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
+.media-grid { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.media-grid .frame { max-width: 600px; }
+.media-grid .side h3 { margin: 0 0 12px; font-family: var(--mono); font-size: 0.74rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.media-grid .gal3 { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+.media-grid .gal3 figure { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 14px; align-items: center; padding: 8px; background: var(--surface); border: 1px solid var(--line); }
+.media-grid .gal3 a { border: 1px solid var(--line); }
+.media-grid .gal3 figcaption { margin: 0; display: grid; gap: 2px; font-size: 0.9rem; color: var(--muted); }
+.media-grid .gal3 figcaption b { color: var(--fg); font-family: var(--display); font-size: 1.15rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.media-grid .side .hint { margin: 10px 2px 0; }
+.demo-sec .cap { max-width: 70ch; }
+@media (max-width: 860px) { .media-grid { grid-template-columns: minmax(0, 1fr); } .media-grid .frame { max-width: none; } }
 /* Mentions légales */
 .legal details { border: 1px solid var(--line); background: var(--surface); margin-top: 10px; }
 .legal summary { cursor: pointer; padding: 14px 16px; font-family: var(--mono); font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--fg); }
@@ -651,7 +667,7 @@ footer .flink { color: var(--muted); text-decoration: underline; }
 
     <section class="block demo-sec" id="video" aria-labelledby="vid-title">
       <h2 id="vid-title">Le menu en action</h2>
-      <div class="wrap-v">
+      <div class="media-grid">
         <div class="frame">
           <div class="bar"><b>Démo en jeu</b><span>Farming Simulator 25 · 2 min</span></div>
           <video id="demo-v" controls preload="metadata" playsinline poster="poster.jpg" src="demo1.mp4" aria-label="Démonstration de Kirikouano Menu HUD dans Farming Simulator 25">
@@ -662,17 +678,17 @@ footer .flink { color: var(--muted); text-decoration: underline; }
             <button type="button" class="part" data-i="1" aria-pressed="false">Partie 2</button>
           </div>
         </div>
-        <p class="cap">Champ libre, état du sol, cultures, clôtures : le menu directement en jeu, sans modifier ta carte.</p>
+        <aside class="gallery-sec side" id="apercu" aria-labelledby="ap-title">
+          <h3 id="ap-title">Aperçu en jeu</h3>
+          <ul class="gal3">
+            <li><figure><a href="shot1.jpg" target="_blank" rel="noopener"><img src="shot1.jpg" alt="Menu Kirikouano ouvert sur l'onglet Élevage, avec les soins et le suivi des animaux" loading="lazy"></a><figcaption><b>Élevage</b>Soins et suivi</figcaption></figure></li>
+            <li><figure><a href="shot2.jpg" target="_blank" rel="noopener"><img src="shot2.jpg" alt="Panneau des pertes animales et règles d'élevage" loading="lazy"></a><figcaption><b>Règles</b>Pertes animales</figcaption></figure></li>
+            <li><figure><a href="shot3.jpg" target="_blank" rel="noopener"><img src="shot3.jpg" alt="Menu Kirikouano sur l'onglet Joueur, avec argent illimité et ressources" loading="lazy"></a><figcaption><b>Joueur</b>Argent et ressources</figcaption></figure></li>
+          </ul>
+          <p class="hint">Clique sur une image pour l'agrandir.</p>
+        </aside>
       </div>
-    </section>
-
-    <section class="block gallery-sec" id="apercu" aria-labelledby="ap-title">
-      <h2 id="ap-title">Aperçu en jeu</h2>
-      <ul class="gal3">
-        <li><figure><a href="shot1.jpg" target="_blank" rel="noopener"><img src="shot1.jpg" alt="Menu Kirikouano ouvert sur l'onglet Élevage, avec les soins et le suivi des animaux" loading="lazy"></a><figcaption>Onglet Élevage : soins et suivi</figcaption></figure></li>
-        <li><figure><a href="shot2.jpg" target="_blank" rel="noopener"><img src="shot2.jpg" alt="Panneau des pertes animales et règles d'élevage" loading="lazy"></a><figcaption>Pertes animales et règles</figcaption></figure></li>
-        <li><figure><a href="shot3.jpg" target="_blank" rel="noopener"><img src="shot3.jpg" alt="Menu Kirikouano sur l'onglet Joueur, avec argent illimité et ressources" loading="lazy"></a><figcaption>Onglet Joueur : argent et ressources</figcaption></figure></li>
-      </ul>
+      <p class="cap">Champ libre, état du sol, cultures, clôtures : le menu directement en jeu, sans modifier ta carte.</p>
     </section>
 
     <section class="block" id="fonctions" aria-labelledby="feat-title">
