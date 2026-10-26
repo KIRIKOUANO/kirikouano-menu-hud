@@ -1,6 +1,14 @@
 (function () {
   "use strict";
   var EN = {
+    "Glisse ton fichier .zip ici": "Drop your .zip file here",
+    "ou clique pour le choisir. Le calcul se fait dans ton navigateur : le fichier n'est jamais envoyé.": "or click to choose it. The calculation runs in your browser: the file is never uploaded.",
+    "Ou, avec PowerShell, ouvre-le dans ton dossier de téléchargements :": "Or, with PowerShell, open it in your downloads folder:",
+    "Calcul en cours...": "Calculating...",
+    "✔ Fichier authentique : l'empreinte correspond.": "✔ Authentic file: the fingerprint matches.",
+    "Ton navigateur ne peut pas calculer l'empreinte ici. Utilise PowerShell.": "Your browser can't compute the fingerprint here. Use PowerShell.",
+    "Fichier trop gros pour une vérification ici.": "File too large to check here.",
+    "Impossible de lire ce fichier.": "Unable to read this file.",
     "Vidéo": "Video", "Fonctions": "Features", "Installation": "Install", "Catalogue": "Catalog",
     "Proposer un mod": "Submit a mod", "Licence": "License", "Aide": "Help", "Télécharger": "Download",
     "Bientôt disponible": "Coming soon", "Copier": "Copy", "Copié": "Copied",
@@ -120,6 +128,7 @@
   };
   var RX = [
     [/^Voir la capture (\d+)$/, "View screenshot $1"],
+    [/^✘ L'empreinte ne correspond pas\. Ne l'installe pas\. Empreinte calculée : (.+)$/, "✘ The fingerprint does not match. Do not install it. Computed fingerprint: $1"],
     [/^(\d+) mods?$/, "$1 mod(s)"]
   ];
   var ATTRS = ["aria-label", "alt", "title", "placeholder"];

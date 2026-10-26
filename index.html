@@ -391,6 +391,14 @@ h3 {
 @media (max-width: 860px) { .ver { grid-template-columns: minmax(0, 1fr); } }
 .integrity .path { max-width: 820px; margin-bottom: 14px; }
 .integrity a { color: var(--accent-ink); text-underline-offset: 3px; }
+.drop { display: block; max-width: 820px; box-sizing: border-box; margin: 6px 0 10px; padding: 26px 20px; border: 2px dashed var(--line); background: var(--surface); text-align: center; cursor: pointer; }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.drop b { display: block; font-family: var(--display); font-size: 1.35rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--fg); }
+.drop span { display: block; margin-top: 6px; color: var(--muted); font-size: 0.95rem; }
+.drop:hover, .drop.over, .drop:focus-within { border-color: var(--accent); }
+.dropres { max-width: 820px; min-height: 1.4em; margin: 0 0 22px; font-weight: 600; overflow-wrap: anywhere; }
+.dropres.ok { color: var(--ok); }
+.dropres.bad { color: var(--err); }
 
 /* Catalogue */
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr)); gap: 20px; }
@@ -747,7 +755,13 @@ footer .flink { color: var(--muted); text-decoration: underline; }
         <code id="sha"></code>
         <button type="button" id="copy-sha">Copier</button>
       </div>
-      <p class="intro">Pour calculer l'empreinte de ton fichier, ouvre PowerShell dans ton dossier de téléchargements :</p>
+      <label class="drop" id="drop" for="drop-file">
+        <input type="file" id="drop-file" accept=".zip,application/zip">
+        <b>Glisse ton fichier .zip ici</b>
+        <span>ou clique pour le choisir. Le calcul se fait dans ton navigateur : le fichier n'est jamais envoyé.</span>
+      </label>
+      <p class="dropres" id="dropres" role="status" aria-live="polite"></p>
+      <p class="intro">Ou, avec PowerShell, ouvre-le dans ton dossier de téléchargements :</p>
       <div class="path">
         <code id="sha-cmd"></code>
         <button type="button" id="copy-cmd">Copier</button>
@@ -1001,6 +1015,26 @@ footer .flink { color: var(--muted); text-decoration: underline; }
     document.getElementById("sha-cmd").textContent = "Get-FileHash .\\" + file + " -Algorithm SHA256";
     wireCopy(document.getElementById("copy-sha"), document.getElementById("sha"));
     wireCopy(document.getElementById("copy-cmd"), document.getElementById("sha-cmd"));
+    (function () {
+      var zone = document.getElementById("drop"), inp = document.getElementById("drop-file"), res = document.getElementById("dropres");
+      function say(t, c) { res.textContent = t; res.className = "dropres" + (c ? " " + c : ""); }
+      async function check(f) {
+        if (!f) return;
+        if (!(window.crypto && crypto.subtle)) { say("Ton navigateur ne peut pas calculer l'empreinte ici. Utilise PowerShell.", "bad"); return; }
+        if (f.size > 200 * 1024 * 1024) { say("Fichier trop gros pour une vérification ici.", "bad"); return; }
+        say("Calcul en cours...");
+        try {
+          var h = await crypto.subtle.digest("SHA-256", await f.arrayBuffer());
+          var hex = Array.prototype.map.call(new Uint8Array(h), function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+          if (hex === CONFIG.sha256.toLowerCase()) say("✔ Fichier authentique : l'empreinte correspond.", "ok");
+          else say("✘ L'empreinte ne correspond pas. Ne l'installe pas. Empreinte calculée : " + hex, "bad");
+        } catch (e) { say("Impossible de lire ce fichier.", "bad"); }
+      }
+      inp.addEventListener("change", function () { check(inp.files[0]); inp.value = ""; });
+      ["dragenter", "dragover"].forEach(function (ev) { zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.add("over"); }); });
+      ["dragleave", "drop"].forEach(function (ev) { zone.addEventListener(ev, function (e) { e.preventDefault(); zone.classList.remove("over"); }); });
+      zone.addEventListener("drop", function (e) { check(e.dataTransfer && e.dataTransfer.files[0]); });
+    })();
     if (/^https:\/\/www\.virustotal\.com\//.test(CONFIG.virusTotal)) {
       document.getElementById("vt").href = CONFIG.virusTotal;
       document.getElementById("vt-row").hidden = false;
