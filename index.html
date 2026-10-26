@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' https://api.github.com; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: https:; media-src 'self' blob: data:; connect-src 'self' https://api.github.com https://abacus.jasoncameron.dev; manifest-src 'self'; form-action 'none'; base-uri 'none'; object-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="Kirikouano Menu HUD : le menu HUD en 12 onglets pour Farming Simulator 25, avec catalogue de mods de la communauté.">
@@ -885,7 +885,7 @@ footer .flink { color: var(--muted); text-decoration: underline; }
       <details>
         <summary>Données personnelles et cookies</summary>
         <p>Ce site ne crée aucun compte, n'utilise aucun cookie de suivi, de publicité ni de mesure d'audience, et ne conserve aucune donnée sur ses visiteurs.</p>
-        <p>Pour afficher le compteur de téléchargements, ta navigation interroge l'API publique de GitHub : GitHub reçoit alors ton adresse IP, selon sa <a href="https://docs.github.com/fr/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>. Le téléchargement du mod, la proposition d'un mod et les signalements passent aussi par GitHub et ton propre compte.</p>
+        <p>Pour afficher le compteur de téléchargements, ta navigation interroge l'API publique de GitHub et le service de comptage Abacus (abacus.jasoncameron.dev), qui reçoivent alors ton adresse IP. Un clic sur Télécharger ajoute 1 au compteur d'Abacus, sans autre donnée. Pour GitHub, voir sa <a href="https://docs.github.com/fr/site-policy/privacy-policies/github-general-privacy-statement" target="_blank" rel="noopener noreferrer">politique de confidentialité</a>. Le téléchargement du mod, la proposition d'un mod et les signalements passent aussi par GitHub et ton propre compte.</p>
         <p>Le navigateur peut garder sur ton appareil de simples préférences (par exemple le son activé ou non). Elles ne sont jamais envoyées au site.</p>
         <p>Tu peux demander l'accès, la correction ou la suppression de données te concernant (par exemple une proposition de mod publiée) en écrivant à l'adresse de contact ci-dessus.</p>
       </details>
@@ -1068,8 +1068,10 @@ footer .flink { color: var(--muted); text-decoration: underline; }
   var ISSUES = "https://github.com/" + REPO + "/issues";
 
   /* Compteur officiel : somme des téléchargements des .zip publiés sur GitHub */
+  var AB = "https://abacus.jasoncameron.dev";
+  var AB_PATH = "/kirikouano-menu-hud/downloads";
   function startCounter() {
-    fetch("https://api.github.com/repos/" + REPO + "/releases?per_page=100", { headers: { Accept: "application/vnd.github+json" } })
+    var gh = fetch("https://api.github.com/repos/" + REPO + "/releases?per_page=100", { headers: { Accept: "application/vnd.github+json" } })
       .then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); })
       .then(function (rel) {
         var total = 0;
@@ -1078,10 +1080,25 @@ footer .flink { color: var(--muted); text-decoration: underline; }
             if (/\.zip$/i.test(a.name || "")) total += Number(a.download_count) || 0;
           });
         });
-        show(total);
-        totalEl.textContent = "Compteur officiel de GitHub";
-      })
-      .catch(function () { totalEl.textContent = "Compteur indisponible pour le moment."; });
+        return total;
+      }).catch(function () { return null; });
+    var own = fetch(AB + "/get" + AB_PATH)
+      .then(function (r) { if (!r.ok) throw new Error("http"); return r.json(); })
+      .then(function (j) { return Number(j && j.value) || 0; }).catch(function () { return null; });
+    Promise.all([gh, own]).then(function (v) {
+      if (v[0] == null && v[1] == null) { totalEl.textContent = "Compteur indisponible pour le moment."; return; }
+      show(Math.max(v[0] || 0, v[1] || 0));
+      totalEl.textContent = "Compteur du site";
+    });
+  }
+  /* Un clic sur Télécharger compte 1, au plus une fois par heure et par navigateur */
+  function countHit() {
+    try {
+      var last = Number(localStorage.getItem("kk-hit") || 0);
+      if (Date.now() - last < 3600000) return;
+      localStorage.setItem("kk-hit", String(Date.now()));
+    } catch (e) {}
+    try { fetch(AB + "/hit" + AB_PATH, { keepalive: true }).catch(function () {}); } catch (e) {}
   }
   startCounter();
 
@@ -1137,6 +1154,7 @@ footer .flink { color: var(--muted); text-decoration: underline; }
   }
   var launchTimer = 0;
   function runLaunch() {
+    countHit();
     clearTimeout(launchTimer);
     prepAudio();
     var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
